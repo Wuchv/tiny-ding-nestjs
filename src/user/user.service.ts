@@ -22,7 +22,7 @@ export class UserService {
     try {
       await this.userRepository.save(user);
     } catch (e) {
-      err = String(e);
+      err = e;
     }
     return [err, null];
   }
@@ -36,7 +36,7 @@ export class UserService {
         err = '账号或密码错误';
       }
     } catch (e) {
-      err = String(e);
+      err = e;
     }
     return [err, result];
   }

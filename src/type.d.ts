@@ -4,4 +4,4 @@ interface IResponse<T> {
   payload?: T;
 }
 
-type ServiceReturn<T> = Promise<[string, T]>;
+type ServiceReturn<T> = Promise<[string | Record<string, unknown>, T]>;

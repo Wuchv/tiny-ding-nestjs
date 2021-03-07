@@ -6,7 +6,6 @@ import * as helmet from 'helmet';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     cors: true, // 设置跨站访问
-    logger: false,
   });
   app.use(helmet());
   app.setGlobalPrefix('api');
