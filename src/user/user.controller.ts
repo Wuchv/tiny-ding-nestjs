@@ -1,10 +1,10 @@
 import {
+  Req,
+  Res,
   Body,
-  Controller,
-  Get,
   Post,
-  Query,
   UseGuards,
+  Controller,
   HttpStatus,
   HttpException,
 } from '@nestjs/common';
@@ -12,15 +12,21 @@ import { AuthGuard } from '@nestjs/passport';
 import { UserService } from './user.service';
 import { UserDto } from './user.dto';
 import { responseFactory } from 'src/utils';
+import { AuthService } from '../auth/auth.service';
+import { Request, Response } from 'express';
 
 interface ILoginPayLoad {
   uid: string;
   nickname?: string;
   avatarUrl?: string;
+  access_token: string;
 }
 @Controller('/user')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly authService: AuthService,
+  ) {}
 
   @Post('/register')
   async register(@Body() user: UserDto): Promise<IResponse<null>> {
@@ -32,12 +38,26 @@ export class UserController {
   }
 
   @UseGuards(AuthGuard('local'))
-  @Get('/login')
-  async login(@Query() user: UserDto): Promise<IResponse<ILoginPayLoad>> {
-    const [err, result] = await this.userService.queryUser(user);
-    if (err) {
-      throw new HttpException(err, HttpStatus.BAD_REQUEST);
-    }
-    return responseFactory(HttpStatus.OK, '登录成功', result);
+  @Post('/login')
+  async login(
+    @Body() user: UserDto,
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<IResponse<ILoginPayLoad>> {
+    const access_token = await this.authService.generateToken({
+      ...user,
+      ...req.user,
+    });
+
+    res.cookie('access_token', access_token, {
+      path: '/',
+      maxAge: 1000 * 60 * 60 * 24 * 30,
+      httpOnly: false,
+    });
+
+    return responseFactory(HttpStatus.OK, '登录成功', {
+      ...req.user,
+      access_token,
+    });
   }
 }

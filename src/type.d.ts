@@ -5,3 +5,5 @@ interface IResponse<T> {
 }
 
 type ServiceReturn<T> = Promise<[string | Record<string, unknown>, T]>;
+
+type SafeObject = Record<string, unknown>;
