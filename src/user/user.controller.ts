@@ -7,6 +7,7 @@ import {
   Controller,
   HttpStatus,
   HttpException,
+  HttpCode,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { UserService } from './user.service';
@@ -39,15 +40,13 @@ export class UserController {
 
   @UseGuards(AuthGuard('local'))
   @Post('/login')
+  @HttpCode(HttpStatus.OK)
   async login(
     @Body() user: UserDto,
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
-  ): Promise<IResponse<ILoginPayLoad>> {
-    const access_token = await this.authService.generateToken({
-      ...user,
-      ...req.user,
-    });
+  ): Promise<ILoginPayLoad> {
+    const access_token = await this.authService.generateToken(req.user);
 
     res.cookie('access_token', access_token, {
       path: '/',
@@ -55,9 +54,13 @@ export class UserController {
       httpOnly: false,
     });
 
-    return responseFactory(HttpStatus.OK, '登录成功', {
+    return {
       ...req.user,
       access_token,
-    });
+    } as ILoginPayLoad;
+    // return responseFactory(HttpStatus.OK, '登录成功', {
+    //   ...req.user,
+    //   access_token,
+    // });
   }
 }

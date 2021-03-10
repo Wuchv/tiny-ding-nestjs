@@ -1,14 +1,16 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import { Controller, Get, Req, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { AppService } from './app.service';
+import { ExtractJwt } from 'passport-jwt';
 
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
   @UseGuards(AuthGuard('jwt'))
-  @Get('/api')
-  getHello(): string {
-    return this.appService.getHello();
+  @Get('/token')
+  getHello(@Req() req): string {
+    const res = ExtractJwt.fromAuthHeaderAsBearerToken()(req);
+    return res;
   }
 }

@@ -6,7 +6,7 @@ export class UserEntity {
   uid: string;
 
   @PrimaryColumn()
-  phone_number: string;
+  account: string;
 
   @Column()
   password: string;

@@ -11,11 +11,11 @@ export class AuthService {
   ) {}
 
   async validateUser(
-    phone_number: string,
+    account: string,
     password: string,
   ): Promise<[string | SafeObject, UserEntity]> {
     return await this.userService.queryUser({
-      phone_number,
+      account,
       password,
     });
   }
