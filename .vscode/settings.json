@@ -3,6 +3,7 @@
         "aliyuncs",
         "nestjs",
         "oyxo",
-        "typeorm"
+        "typeorm",
+        "websockets"
     ]
 }
