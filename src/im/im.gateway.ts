@@ -10,11 +10,15 @@ import {
 } from '@nestjs/websockets';
 import { Logger } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
+import { SocketStateService } from './socket.state.service';
 
 @WebSocketGateway({ namespace: 'im', transports: ['websocket'] })
 export class ImGateway
   implements OnGatewayInit, OnGatewayDisconnect, OnGatewayConnection {
   @WebSocketServer() server: Server;
+
+  constructor(private readonly socketStateService: SocketStateService) {}
+
   private logger: Logger = new Logger('ImGateway');
 
   afterInit() {
@@ -22,22 +26,27 @@ export class ImGateway
   }
 
   async handleConnection(@ConnectedSocket() client: Socket): Promise<any> {
-    this.logger.log(`Client connected: ${client.id}`);
-    // const userRoom = client.handshake.query;
-    return client.id;
+    const { uid } = client.handshake.query;
+    if (uid) {
+      this.socketStateService.save(uid, client);
+    }
+    return uid;
   }
 
   async handleDisconnect(@ConnectedSocket() client: Socket): Promise<any> {
-    this.logger.log(`Client disconnected: ${client.id}`);
+    const { uid } = client.handshake.query;
+    if (uid) {
+      this.socketStateService.remove(uid);
+    }
     return client.id;
   }
 
-  @SubscribeMessage('message')
+  @SubscribeMessage('sendMessageToServer')
   async handleMessage(
     @MessageBody() data: any,
     @ConnectedSocket() client: Socket,
   ): Promise<any> {
-    this.logger.log('message');
+    console.log(data);
     return { event: 'message', data };
   }
 }
