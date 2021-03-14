@@ -1,3 +1,4 @@
+import { Provider } from '@nestjs/common';
 import { createConnection, Connection } from 'typeorm';
 import { UserEntity } from './db.entity';
 
@@ -6,10 +7,10 @@ export enum EDbProvide {
   USER_REPOSITORY = 'USER_REPOSITORY',
 }
 
-export const dbProviders = [
+export const dbProviders: Provider[] = [
   {
     provide: EDbProvide.DATABASE_CONNECTION,
-    useFactory: async () =>
+    useFactory: async (): Promise<Connection> =>
       await createConnection({
         type: 'mysql',
         host: 'rm-bp15s839w0ll9s5oyxo.mysql.rds.aliyuncs.com',

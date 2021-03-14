@@ -1,8 +1,12 @@
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { jwtConstants } from '../constants';
 import { UserEntity } from 'src/db';
+
+export const jwtConstants = {
+  secret: 'ting-ding-jwt-secret',
+  expiresIn: 1000 * 60 * 60 * 24 * 15,
+};
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
