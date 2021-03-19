@@ -13,3 +13,15 @@ declare enum EMsgType {
   IMAGE = 'image',
   FILE = 'file',
 }
+
+declare interface IMessage {
+  msgId: string;
+  cid: string;
+  from: string;
+  to: string;
+  sender: string;
+  avatarUrl: string;
+  msgType: EMsgType;
+  content: string;
+  timestamp: number;
+}
