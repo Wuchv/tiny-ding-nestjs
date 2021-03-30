@@ -9,7 +9,7 @@ export const responseFactory = (
 });
 
 export const getRandomChineseWord = () => {
-  const _rsl = '';
+  let _rsl = '';
   const _randomUniCode = Math.floor(
     Math.random() * (40870 - 19968) + 19968,
   ).toString(16);

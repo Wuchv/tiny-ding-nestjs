@@ -31,10 +31,25 @@ export class UserService {
     let err = null;
     let result: UserEntity = null;
     try {
-      result = await this.userRepository.findOne(user);
+      result = await this.userRepository.findOne(user, {
+        select: ['uid', 'account', 'avatarUrl', 'nickname'],
+      });
       if (!result) {
         err = '账号或密码错误';
       }
+    } catch (e) {
+      err = e;
+    }
+    return [err, result];
+  }
+
+  async queryAllUser(): ServiceReturn<UserEntity[]> {
+    let err = null;
+    let result: UserEntity[] = [];
+    try {
+      result = await this.userRepository.find({
+        select: ['uid', 'account', 'avatarUrl', 'nickname'],
+      });
     } catch (e) {
       err = e;
     }

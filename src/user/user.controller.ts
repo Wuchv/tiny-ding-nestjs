@@ -8,6 +8,7 @@ import {
   HttpStatus,
   HttpException,
   HttpCode,
+  Get,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { UserService } from './user.service';
@@ -58,9 +59,16 @@ export class UserController {
       ...req.user,
       access_token,
     } as ILoginPayLoad;
-    // return responseFactory(HttpStatus.OK, '登录成功', {
-    //   ...req.user,
-    //   access_token,
-    // });
+  }
+
+  @Get('allUsers')
+  @HttpCode(HttpStatus.OK)
+  async getAllUser() {
+    const [err, result] = await this.userService.queryAllUser();
+    if (err) {
+      throw new HttpException(err, HttpStatus.BAD_REQUEST);
+    }
+
+    return result;
   }
 }
