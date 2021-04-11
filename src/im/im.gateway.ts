@@ -9,8 +9,9 @@ import {
 import { Logger } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import { Repository } from 'typeorm';
+import { omit } from 'lodash';
 import { SocketStateService } from './socket.state.service';
-import { MessageEntity, EDbProvide } from '../db';
+import { MessageEntity, AttachmentEntity, EDbProvide } from '../db';
 
 @WebSocketGateway({ namespace: 'im', transports: ['websocket'] })
 export class ImGateway {
@@ -22,6 +23,8 @@ export class ImGateway {
     private readonly socketStateService: SocketStateService,
     @Inject(EDbProvide.MESSAGE_REPOSITORY)
     private readonly msgRepository: Repository<MessageEntity>,
+    @Inject(EDbProvide.ATTACHMENT_REPOSITORY)
+    private readonly attachmentRepository: Repository<AttachmentEntity>,
   ) {}
 
   async handleConnection(@ConnectedSocket() client: Socket): Promise<any> {
@@ -44,17 +47,23 @@ export class ImGateway {
 
   @SubscribeMessage('sendMessageToServer')
   async handleMessageFromClient(
-    @MessageBody() msg: MessageEntity,
+    @MessageBody() msg: IMessage,
     @ConnectedSocket() client: Socket,
   ): Promise<any> {
-    // try {
-    //   await this.msgRepository.save(msg);
-    // } catch (e) {
-    //   client.to(client.id).emit('throwSendMessageError', e);
-    //   return;
-    // }
-    const { fromId: toUid } = msg;
-    const toSocket = this.socketStateService.get(toUid);
+    try {
+      let _msg = msg;
+      const { attachment } = msg;
+      if (attachment) {
+        _msg = omit(msg, ['attachment']);
+        await this.attachmentRepository.save(attachment);
+      }
+      await this.msgRepository.save(_msg);
+    } catch (e) {
+      client.to(client.id).emit('throwSendMessageError', e);
+      return;
+    }
+    const { toId } = msg;
+    const toSocket = this.socketStateService.get(toId);
     if (toSocket) {
       this.logger.log(`send msg to ${toSocket.id}`);
       this.server.to(toSocket.id).emit('obtainMessageFromServer', msg);

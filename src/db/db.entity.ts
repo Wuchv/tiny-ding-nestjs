@@ -47,3 +47,21 @@ export class MessageEntity {
   @Column()
   timestamp: number;
 }
+
+@Entity('attachment')
+export class AttachmentEntity {
+  @PrimaryColumn()
+  msgId: string;
+
+  @Column()
+  url: string;
+
+  @Column()
+  name: string;
+
+  @Column()
+  size: string | number;
+
+  @Column()
+  type: string;
+}
