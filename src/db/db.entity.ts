@@ -16,6 +16,9 @@ export class UserEntity {
 
   @Column()
   avatarUrl?: string;
+
+  @Column()
+  offline: number;
 }
 
 @Entity('message')
@@ -60,7 +63,7 @@ export class AttachmentEntity {
   name: string;
 
   @Column()
-  size: string | number;
+  size: string;
 
   @Column()
   type: string;

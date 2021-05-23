@@ -17,10 +17,18 @@ export class UserService {
       ...newUser,
       uid: uuidV4(),
       nickname: getRandomChineseWord() + getRandomChineseWord(),
+      offline: Date.now(),
     };
     let err = null;
     try {
-      await this.userRepository.save(user);
+      const [, isExist] = await this.queryUser({
+        account: user.account,
+      } as UserDto);
+      if (isExist) {
+        err = '用户已存在';
+      } else {
+        await this.userRepository.save(user);
+      }
     } catch (e) {
       err = e;
     }
@@ -50,6 +58,19 @@ export class UserService {
       result = await this.userRepository.find({
         select: ['uid', 'account', 'avatarUrl', 'nickname'],
       });
+    } catch (e) {
+      err = e;
+    }
+    return [err, result];
+  }
+
+  async userOffline(uid: string, timestamp: number) {
+    let err = null;
+    let result: UserEntity = null;
+    try {
+      result = await this.userRepository.findOne({ uid });
+      result.offline = timestamp;
+      await this.userRepository.save(result);
     } catch (e) {
       err = e;
     }

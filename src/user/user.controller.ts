@@ -9,6 +9,7 @@ import {
   HttpException,
   HttpCode,
   Get,
+  Put,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { UserService } from './user.service';
@@ -23,7 +24,7 @@ interface ILoginPayLoad {
   avatarUrl?: string;
   access_token: string;
 }
-@Controller('/user')
+@Controller('user')
 export class UserController {
   constructor(
     private readonly userService: UserService,
@@ -31,6 +32,7 @@ export class UserController {
   ) {}
 
   @Post('/register')
+  @HttpCode(HttpStatus.OK)
   async register(@Body() user: UserDto): Promise<IResponse<null>> {
     const [err] = await this.userService.addUser(user);
     if (err) {
@@ -70,5 +72,11 @@ export class UserController {
     }
 
     return result;
+  }
+
+  @Put('offline')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async logout(@Body('uid') uid: string, @Body('timestamp') timestamp: number) {
+    await this.userService.userOffline(uid, timestamp);
   }
 }
